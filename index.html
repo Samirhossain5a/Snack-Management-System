@@ -251,6 +251,7 @@
     .panel{padding:12px;border-radius:0 12px 12px 12px;margin-bottom:14px;}
     .card{padding:13px;border-radius:12px;}
     .card h2,.panel h2{font-size:14px;flex-wrap:wrap;}
+    #printTodayBtn{width:100%;}
 
     label{font-size:12px;}
     input,select{padding:13px 11px;font-size:16px;border-radius:9px;}
@@ -375,7 +376,10 @@
       </div>
 
       <div class="card">
-        <h2>Today's Entries <span class="bn">/ আজকের এন্ট্রি</span></h2>
+        <div class="row-flex" style="justify-content:space-between;margin-bottom:14px;">
+          <h2 style="margin:0;">Today's Entries <span class="bn">/ আজকের এন্ট্রি</span></h2>
+          <button class="btn btn-primary btn-sm" id="printTodayBtn">🖨️ Print <span class="bn">প্রিন্ট</span></button>
+        </div>
         <div class="grid grid-2" style="margin-bottom:14px;">
           <div class="stat"><div class="n num" id="todayCount">0</div><div class="l">Entries / সংখ্যা</div></div>
           <div class="stat"><div class="n num" id="todayTotal">৳0.00</div><div class="l">Total / মোট</div></div>
@@ -793,6 +797,15 @@ function renderTodayEntries(){
     </tr>`;
   }).join('');
 }
+document.getElementById('printTodayBtn').addEventListener('click', ()=>{
+  const tISO = todayISO();
+  const todays = entries.filter(e=>e.dateISO===tISO).sort((a,b)=> (a.timeStr<b.timeStr?1:-1));
+  if(todays.length===0){
+    showToast('No entries to print today / আজ প্রিন্ট করার মতো এন্ট্রি নেই', true);
+    return;
+  }
+  openReceiptForEntries(todays, null, false, true);
+});
 document.getElementById('todayEntriesBody').addEventListener('click', (e)=>{
   const delBtn = e.target.closest('[data-del-entry]');
   const printBtn = e.target.closest('[data-reprint]');
@@ -922,7 +935,7 @@ document.getElementById('empWiseBody').addEventListener('click', (e)=>{
 let currentReceiptSize = '58';
 let currentReceiptData = null; // {entriesForReceipt, employee, isSummary}
 
-function buildReceiptHTML(entriesForReceipt, employee, isSummary){
+function buildReceiptHTML(entriesForReceipt, employee, isSummary, isMulti){
   const now = new Date();
   const {date, time} = fmtDateTime(now);
   const invoiceNo = entriesForReceipt.length===1 ? entriesForReceipt[0].invoiceNo : ('SUMMARY-' + uid().slice(0,5).toUpperCase());
@@ -930,7 +943,23 @@ function buildReceiptHTML(entriesForReceipt, employee, isSummary){
   let itemRows = '';
   let grandTotal = 0;
 
-  if(!isSummary){
+  if(isMulti){
+    entriesForReceipt.forEach(en=>{
+      const emp = getEmployee(en.employeeId);
+      const item = getItem(en.itemId);
+      const name = item ? item.name : '—';
+      grandTotal += en.total;
+      itemRows += `
+        <tr>
+          <td colspan="3" style="padding-top:7px;font-weight:700;">${escapeHtml(emp ? emp.name : '—')}</td>
+        </tr>
+        <tr>
+          <td>${escapeHtml(name)}</td>
+          <td>${en.qty} @ ${money(en.price)}</td>
+          <td class="r">${money(en.total)}</td>
+        </tr>`;
+    });
+  } else if(!isSummary){
     entriesForReceipt.forEach(en=>{
       const item = getItem(en.itemId);
       const name = item ? item.name : '—';
@@ -973,12 +1002,15 @@ function buildReceiptHTML(entriesForReceipt, employee, isSummary){
     <div class="row"><span>Date / তারিখ</span><span>${date}</span></div>
     <div class="row"><span>Time / সময়</span><span>${time}</span></div>
     <hr>
-    <div class="row"><span>Employee / কর্মী</span><span>${escapeHtml(employee ? employee.name : '—')}</span></div>
-    ${isSummary ? `<div class="row"><span>Type</span><span>Summary / সামারি</span></div>` : ''}
+    ${isMulti
+      ? `<div class="row"><span>Type</span><span>Daily Summary / দৈনিক সামারি</span></div>`
+      : `<div class="row"><span>Employee / কর্মী</span><span>${escapeHtml(employee ? employee.name : '—')}</span></div>
+         ${isSummary ? `<div class="row"><span>Type</span><span>Summary / সামারি</span></div>` : ''}`
+    }
     <hr>
     <table>
       <thead>
-        <tr><th>Item / আইটেম</th><th>Qty/দাম</th><th class="r">Total</th></tr>
+        <tr><th>${isMulti ? 'Employee/Item' : 'Item / আইটেম'}</th><th>Qty/দাম</th><th class="r">Total</th></tr>
       </thead>
       <tbody>
         ${itemRows}
@@ -995,14 +1027,14 @@ function buildReceiptHTML(entriesForReceipt, employee, isSummary){
   `;
 }
 
-function openReceiptForEntries(entriesForReceipt, employee, isSummary){
-  currentReceiptData = {entriesForReceipt, employee, isSummary: !!isSummary};
+function openReceiptForEntries(entriesForReceipt, employee, isSummary, isMulti){
+  currentReceiptData = {entriesForReceipt, employee, isSummary: !!isSummary, isMulti: !!isMulti};
   renderReceiptPreview();
   document.getElementById('receiptModal').style.display = 'flex';
 }
 function renderReceiptPreview(){
   if(!currentReceiptData) return;
-  const html = buildReceiptHTML(currentReceiptData.entriesForReceipt, currentReceiptData.employee, currentReceiptData.isSummary);
+  const html = buildReceiptHTML(currentReceiptData.entriesForReceipt, currentReceiptData.employee, currentReceiptData.isSummary, currentReceiptData.isMulti);
   const wrap = document.getElementById('printArea');
   wrap.innerHTML = `<div class="receipt w${currentReceiptSize}">${html}</div>`;
 }
