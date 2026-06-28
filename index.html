@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Office Snack POS / অফিস নাস্তা সিস্টেম</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#171a21;
+    --panel-2:#1e222b;
+    --border:#2a2f3a;
+    --text:#eef0f3;
+    --text-dim:#9aa3b2;
+    --accent:#ff7a3d;
+    --accent-2:#ffb454;
+    --good:#3ddc97;
+    --bad:#ff5d6c;
+    --radius:14px;
+    --mono: 'Courier New', monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f3f1ea;
+    --panel:#ffffff;
+    --panel-2:#f7f5ef;
+    --border:#ddd7c8;
+    --text:#22201b;
+    --text-dim:#6b6657;
+    --accent:#d9531e;
+    --accent-2:#b8862f;
+    --good:#1f8f5f;
+    --bad:#c43a3a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Bengali", Roboto, Arial, sans-serif;
+    min-height:100vh;
+    padding-bottom:40px;
+    transition:background .2s,color .2s;
+  }
+  /* ---------- HEADER ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border-bottom:1px solid var(--border);
+    padding:14px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .mark{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#1a1208;font-size:18px;flex:none;
+  }
+  .brand h1{font-size:16px;margin:0;line-height:1.25;}
+  .brand .sub{font-size:12px;color:var(--text-dim);}
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .icon-btn{
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:9px 12px;font-size:13px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .icon-btn:active{transform:scale(0.97);}
+
+  /* ---------- NAV TABS ---------- */
+  nav.tabs{
+    display:flex;gap:8px;overflow-x:auto;padding:14px 18px 0;
+    -webkit-overflow-scrolling:touch;
+  }
+  nav.tabs::-webkit-scrollbar{height:0;}
+  .tab-btn{
+    flex:none;
+    background:var(--panel);border:1px solid var(--border);color:var(--text-dim);
+    padding:11px 16px;border-radius:12px 12px 0 0;font-size:13.5px;font-weight:600;
+    cursor:pointer;white-space:nowrap;border-bottom:none;
+  }
+  .tab-btn.active{
+    color:var(--text);background:var(--panel-2);
+    border-color:var(--accent);box-shadow: inset 0 3px 0 var(--accent);
+  }
+
+  main{padding:0 18px 18px;max-width:1100px;margin:0 auto;}
+  .panel{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:0 var(--radius) var(--radius) var(--radius);
+    padding:18px;
+    margin-bottom:18px;
+  }
+  .grid{display:grid;gap:18px;}
+  @media(min-width:760px){
+    .grid-2{grid-template-columns:1fr 1fr;}
+    .grid-3{grid-template-columns:1fr 1fr 1fr;}
+  }
+
+  .card{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px;
+  }
+  .card h2,.panel h2{
+    font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px;
+  }
+  .card h2 .bn, .panel h2 .bn, label .bn, .pill .bn{color:var(--accent-2);font-weight:600;}
+
+  label{display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;margin-top:12px;}
+  label:first-child{margin-top:0;}
+  input,select{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:13px 12px;
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+  }
+  input:focus,select:focus{border-color:var(--accent);}
+  input::placeholder{color:var(--text-dim);}
+
+  .btn{
+    border:none;border-radius:11px;padding:14px 18px;font-size:15px;font-weight:700;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;margin-top:14px;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#1a1208;}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+  .btn-danger{background:transparent;border:1px solid var(--bad);color:var(--bad);}
+  .btn-sm{padding:8px 12px;font-size:13px;width:auto;margin-top:0;border-radius:8px;}
+  .btn:active{transform:scale(0.98);}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{
+    text-align:left;color:var(--text-dim);font-weight:600;font-size:12px;
+    padding:8px 6px;border-bottom:1px solid var(--border);white-space:nowrap;
+  }
+  td{padding:10px 6px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .table-wrap{overflow-x:auto;}
+  .empty-state{
+    text-align:center;color:var(--text-dim);padding:30px 10px;font-size:13.5px;
+  }
+  .pill{
+    display:inline-block;background:var(--bg);border:1px solid var(--border);
+    border-radius:999px;padding:3px 10px;font-size:11.5px;color:var(--text-dim);
+  }
+  .num{font-variant-numeric:tabular-nums;}
+  .right{text-align:right;}
+  .center{text-align:center;}
+  .row-flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  .total-box{
+    background:linear-gradient(135deg, rgba(255,122,61,.15), rgba(255,180,84,.08));
+    border:1px solid var(--accent);
+    border-radius:12px;padding:16px;margin-top:14px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .total-box .label{font-size:13px;color:var(--text-dim);}
+  .total-box .value{font-size:24px;font-weight:800;color:var(--accent-2);}
+
+  .stat{
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:14px;text-align:center;
+  }
+  .stat .n{font-size:22px;font-weight:800;color:var(--accent-2);}
+  .stat .l{font-size:11.5px;color:var(--text-dim);margin-top:4px;}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--good);color:#08221a;padding:12px 20px;border-radius:10px;
+    font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;
+    z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.err{background:var(--bad);color:#2a0a0a;}
+
+  /* receipt size selector */
+  .receipt-options{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .seg-btn{
+    flex:1;min-width:90px;background:var(--panel);border:1px solid var(--border);
+    color:var(--text-dim);padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;
+  }
+  .seg-btn.active{border-color:var(--accent);color:var(--text);background:var(--panel-2);}
+
+  /* ---------- RECEIPT (also used for print) ---------- */
+  #receiptPreviewWrap{
+    background:#fff;border-radius:12px;padding:14px;overflow:auto;
+    display:flex;justify-content:center;
+  }
+  .receipt{
+    background:#fff;color:#000;font-family:var(--mono);
+    font-size:13px;line-height:1.55;padding:10px 8px;
+  }
+  .receipt.w58{width:208px;}
+  .receipt.w80{width:288px;}
+  .receipt .center{text-align:center;}
+  .receipt .title{font-size:16px;font-weight:700;letter-spacing:0.5px;}
+  .receipt .sub{font-size:12px;}
+  .receipt hr{border:none;border-top:1px dashed #000;margin:8px 0;}
+  .receipt table{width:100%;border-collapse:collapse;font-size:12px;}
+  .receipt th,.receipt td{border:none;padding:2px 0;text-align:left;}
+  .receipt td.r, .receipt th.r{text-align:right;}
+  .receipt .row{display:flex;justify-content:space-between;font-size:12px;}
+  .receipt .grand{font-size:14px;font-weight:700;}
+  .receipt .footer{font-size:11px;margin-top:8px;}
+
+  /* file input hidden helper */
+  .file-hidden{display:none;}
+
+  footer.note{
+    text-align:center;color:var(--text-dim);font-size:11.5px;padding:20px 10px 0;
+  }
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{
+      position:absolute;top:0;left:0;width:100%;
+    }
+    .receipt{width:100% !important; padding:0; margin:0;}
+    @page{margin:0;size:auto;}
+  }
+
+  /* =========================================================
+     RESPONSIVE / MOBILE
+  ========================================================= */
+  @media (max-width:760px){
+    .grid-2{grid-template-columns:1fr;}
+    .grid-3{grid-template-columns:1fr;}
+  }
+
+  @media (max-width:600px){
+    header{padding:10px 12px;gap:8px;}
+    .brand .mark{width:34px;height:34px;font-size:16px;}
+    .brand h1{font-size:13.5px;}
+    .brand .sub{font-size:10px;}
+    .header-actions{gap:6px;}
+    .icon-btn{padding:9px 11px;font-size:0;gap:0;border-radius:9px;}
+    .icon-btn span{display:none;}
+
+    nav.tabs{padding:10px 10px 0;gap:6px;}
+    .tab-btn{padding:10px 12px;font-size:12px;border-radius:10px 10px 0 0;}
+    .tab-btn .bn{display:none;}
+
+    main{padding:0 10px 14px;}
+    .panel{padding:12px;border-radius:0 12px 12px 12px;margin-bottom:14px;}
+    .card{padding:13px;border-radius:12px;}
+    .card h2,.panel h2{font-size:14px;flex-wrap:wrap;}
+
+    label{font-size:12px;}
+    input,select{padding:13px 11px;font-size:16px;border-radius:9px;}
+    .btn{padding:15px 16px;font-size:15px;border-radius:10px;}
+    .btn-sm{padding:10px 12px;font-size:13px;}
+
+    .total-box{padding:13px;flex-wrap:wrap;gap:8px;}
+    .total-box .value{font-size:20px;}
+    .pill{font-size:11px;}
+
+    .stat{padding:12px 8px;}
+    .stat .n{font-size:19px;}
+    .stat .l{font-size:10.5px;}
+
+    .row-flex{gap:8px;}
+    .row-flex label{flex:1 1 100% !important;}
+    #todayBtn, #allTimeBtn{width:100%;margin-top:0 !important;}
+
+    /* ---- Card-style stacked tables on phone ---- */
+    .table-wrap table thead{
+      position:absolute;left:-9999px;top:-9999px;
+    }
+    .table-wrap table, .table-wrap tbody, .table-wrap tr, .table-wrap td{
+      display:block;width:100%;
+    }
+    .table-wrap tr{
+      background:var(--panel);border:1px solid var(--border);border-radius:11px;
+      padding:10px 12px;margin-bottom:10px;
+    }
+    .table-wrap tr:last-child{margin-bottom:0;}
+    .table-wrap td{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      padding:6px 0;border-bottom:1px dashed var(--border);text-align:right;
+    }
+    .table-wrap td:last-child{border-bottom:none;}
+    .table-wrap td:empty{display:none;}
+    .table-wrap td::before{
+      content:attr(data-label);
+      font-size:11px;color:var(--text-dim);font-weight:600;
+      text-align:left;flex:none;
+    }
+    .table-wrap td[data-label=""]::before, .table-wrap td:not([data-label])::before{content:none;}
+    .table-wrap td.cell-actions{justify-content:flex-end;gap:8px;}
+    .table-wrap td.cell-actions::before{content:none;}
+
+    /* receipt modal */
+    #receiptModal{padding:10px;align-items:flex-end;}
+    #receiptModal .panel{
+      padding:14px;max-height:94vh;border-radius:16px 16px 0 0;
+      max-width:100%;
+    }
+    .receipt-options{margin-bottom:12px;}
+    .seg-btn{padding:11px;font-size:13px;}
+    #receiptPreviewWrap{padding:12px;}
+    .receipt.w58{width:200px;}
+    .receipt.w80{width:270px;}
+
+    footer.note{font-size:10.5px;padding:16px 10px 0;}
+  }
+
+  @media (max-width:380px){
+    .brand h1{font-size:12.5px;}
+    .tab-btn{padding:9px 10px;font-size:11px;}
+    .total-box .value{font-size:18px;}
+    .receipt.w58{width:185px;}
+    .receipt.w80{width:250px;}
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<header>
+  <div class="brand">
+    <div class="mark">🍵</div>
+    <div>
+      <h1>OFFICE SNACK POS</h1>
+      <div class="sub">অফিস নাস্তা সিস্টেম</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="themeToggle">🌙 <span>Theme</span></button>
+    <button class="icon-btn" id="exportBtn">⬇️ <span>Backup</span></button>
+    <button class="icon-btn" id="importBtnLabel">⬆️ <span>Restore</span></button>
+    <input type="file" id="importFile" accept="application/json" class="file-hidden">
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="entry">🧾 New Entry <span class="bn">নতুন এন্ট্রি</span></button>
+  <button class="tab-btn" data-tab="employees">👤 Employees <span class="bn">কর্মী</span></button>
+  <button class="tab-btn" data-tab="items">🍪 Items <span class="bn">আইটেম</span></button>
+  <button class="tab-btn" data-tab="daily">📋 Daily Report <span class="bn">দৈনিক রিপোর্ট</span></button>
+  <button class="tab-btn" data-tab="empwise">📊 Employee Report <span class="bn">কর্মী রিপোর্ট</span></button>
+</nav>
+
+<main>
+
+  <!-- ===================== ENTRY TAB ===================== -->
+  <section class="panel" id="tab-entry">
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>Daily Entry <span class="bn">/ এন্ট্রি যুক্ত করুন</span></h2>
+
+        <label>Employee <span class="bn">/ কর্মী</span></label>
+        <select id="entryEmployee"></select>
+
+        <label>Item <span class="bn">/ আইটেম</span></label>
+        <select id="entryItem"></select>
+
+        <label>Quantity <span class="bn">/ পরিমাণ</span></label>
+        <input type="number" id="entryQty" min="1" value="1" inputmode="numeric">
+
+        <div class="total-box">
+          <div>
+            <div class="label">Total / মোট</div>
+            <div class="value num" id="entryTotalPreview">৳ 0.00</div>
+          </div>
+          <div class="pill" id="entryUnitPrice">unit price: —</div>
+        </div>
+
+        <button class="btn btn-primary" id="saveEntryBtn">✅ Save Entry <span class="bn">/ সংরক্ষণ করুন</span></button>
+      </div>
+
+      <div class="card">
+        <h2>Today's Entries <span class="bn">/ আজকের এন্ট্রি</span></h2>
+        <div class="grid grid-2" style="margin-bottom:14px;">
+          <div class="stat"><div class="n num" id="todayCount">0</div><div class="l">Entries / সংখ্যা</div></div>
+          <div class="stat"><div class="n num" id="todayTotal">৳0.00</div><div class="l">Total / মোট</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Employee</th><th>Item</th><th class="right">Qty</th><th class="right">Total</th><th></th>
+            </tr></thead>
+            <tbody id="todayEntriesBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="todayEmpty" style="display:none;">No entries yet today.<br>আজ এখনো কোনো এন্ট্রি নেই।</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EMPLOYEES TAB ===================== -->
+  <section class="panel" id="tab-employees" style="display:none;">
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>Add Employee <span class="bn">/ কর্মী যুক্ত করুন</span></h2>
+        <label>Employee Name <span class="bn">/ নাম</span></label>
+        <input type="text" id="newEmployeeName" placeholder="e.g. Rahim / রহিম">
+        <button class="btn btn-primary" id="addEmployeeBtn">➕ Add Employee <span class="bn">/ যুক্ত করুন</span></button>
+      </div>
+      <div class="card">
+        <h2>Employee List <span class="bn">/ কর্মী তালিকা</span></h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th class="right">Entries</th><th></th></tr></thead>
+            <tbody id="employeeListBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="employeeEmpty" style="display:none;">No employees added yet.<br>এখনো কোনো কর্মী যুক্ত করা হয়নি।</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ITEMS TAB ===================== -->
+  <section class="panel" id="tab-items" style="display:none;">
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>Add Item <span class="bn">/ আইটেম যুক্ত করুন</span></h2>
+        <label>Item Name <span class="bn">/ নাম</span></label>
+        <input type="text" id="newItemName" placeholder="e.g. Tea / চা">
+        <label>Price (৳) <span class="bn">/ দাম</span></label>
+        <input type="number" id="newItemPrice" min="0" step="0.01" placeholder="e.g. 10">
+        <button class="btn btn-primary" id="addItemBtn">➕ Add Item <span class="bn">/ যুক্ত করুন</span></button>
+      </div>
+      <div class="card">
+        <h2>Item List <span class="bn">/ আইটেম তালিকা</span></h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Item</th><th class="right">Price</th><th></th></tr></thead>
+            <tbody id="itemListBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="itemEmpty" style="display:none;">No items added yet.<br>এখনো কোনো আইটেম যুক্ত করা হয়নি।</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DAILY REPORT TAB ===================== -->
+  <section class="panel" id="tab-daily" style="display:none;">
+    <div class="card" style="margin-bottom:0;">
+      <h2>Daily Report <span class="bn">/ দৈনিক রিপোর্ট</span></h2>
+      <div class="row-flex" style="margin-bottom:14px;">
+        <label style="margin:0;flex:1;min-width:160px;">
+          Select Date / তারিখ
+          <input type="date" id="reportDate">
+        </label>
+        <button class="btn btn-outline btn-sm" id="todayBtn" style="margin-top:6px;">Today</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Time</th><th>Employee</th><th>Item</th><th class="right">Qty</th><th class="right">Price</th><th class="right">Total</th><th></th>
+          </tr></thead>
+          <tbody id="dailyReportBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="dailyEmpty" style="display:none;">No entries for this date.<br>এই তারিখে কোনো এন্ট্রি নেই।</div>
+      <div class="total-box">
+        <div class="label">Grand Total / সর্বমোট</div>
+        <div class="value num" id="dailyGrandTotal">৳0.00</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EMPLOYEE-WISE REPORT TAB ===================== -->
+  <section class="panel" id="tab-empwise" style="display:none;">
+    <div class="card" style="margin-bottom:0;">
+      <h2>Employee Wise Report <span class="bn">/ কর্মী ভিত্তিক রিপোর্ট</span></h2>
+      <div class="row-flex" style="margin-bottom:14px;">
+        <label style="margin:0;flex:1;min-width:160px;">
+          From / শুরু
+          <input type="date" id="empFromDate">
+        </label>
+        <label style="margin:0;flex:1;min-width:160px;">
+          To / শেষ
+          <input type="date" id="empToDate">
+        </label>
+        <button class="btn btn-outline btn-sm" id="allTimeBtn" style="margin-top:auto;">All Time</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Employee</th><th class="right">Entries</th><th class="right">Total Qty</th><th class="right">Total Amount</th><th></th></tr></thead>
+          <tbody id="empWiseBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="empWiseEmpty" style="display:none;">No data for this range.<br>এই সময়ে কোনো ডেটা নেই।</div>
+      <div class="total-box">
+        <div class="label">Grand Total / সর্বমোট</div>
+        <div class="value num" id="empWiseGrandTotal">৳0.00</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== RECEIPT MODAL ===================== -->
+<div id="receiptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:16px;">
+  <div class="panel" style="max-width:420px;width:100%;max-height:90vh;overflow:auto;border-radius:14px;">
+    <h2>Receipt Preview <span class="bn">/ রসিদ প্রিভিউ</span></h2>
+    <div class="receipt-options">
+      <button class="seg-btn active" data-size="58" id="seg58">58mm</button>
+      <button class="seg-btn" data-size="80" id="seg80">80mm</button>
+    </div>
+    <div id="receiptPreviewWrap">
+      <div id="printArea"></div>
+    </div>
+    <div class="row-flex" style="margin-top:14px;">
+      <button class="btn btn-primary" id="printReceiptBtn" style="flex:1;">🖨️ Print / প্রিন্ট</button>
+      <button class="btn btn-outline" id="closeReceiptBtn" style="flex:1;">Close / বন্ধ করুন</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer class="note">100% Offline • Data stored in your browser (LocalStorage) • অফলাইন POS সিস্টেম</footer>
+
+<script>
+/* =========================================================
+   STORAGE LAYER
+========================================================= */
+const STORE_KEYS = { employees:'pos_employees', items:'pos_items', entries:'pos_entries', invoiceSeq:'pos_invoice_seq', theme:'pos_theme' };
+
+function loadData(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+function saveData(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+let employees = loadData(STORE_KEYS.employees, []);   // [{id,name}]
+let items     = loadData(STORE_KEYS.items, []);        // [{id,name,price}]
+let entries   = loadData(STORE_KEYS.entries, []);       // [{id,invoiceNo,employeeId,itemId,qty,price,total,dateISO,timeStr}]
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function nextInvoiceNumber(){
+  let seq = loadData(STORE_KEYS.invoiceSeq, 0);
+  seq += 1;
+  saveData(STORE_KEYS.invoiceSeq, seq);
+  return 'INV-' + String(seq).padStart(5,'0');
+}
+
+/* =========================================================
+   UTILS
+========================================================= */
+function money(n){ return '৳' + (Math.round(n*100)/100).toFixed(2); }
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtDateTime(d){
+  const date = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+  return {date,time};
+}
+function showToast(msg, isErr){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+function getEmployee(id){ return employees.find(e=>e.id===id); }
+function getItem(id){ return items.find(i=>i.id===id); }
+
+/* =========================================================
+   TABS
+========================================================= */
+const tabSections = {
+  entry: document.getElementById('tab-entry'),
+  employees: document.getElementById('tab-employees'),
+  items: document.getElementById('tab-items'),
+  daily: document.getElementById('tab-daily'),
+  empwise: document.getElementById('tab-empwise'),
+};
+document.getElementById('tabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.tab-btn');
+  if(!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const tab = btn.dataset.tab;
+  Object.entries(tabSections).forEach(([k,el])=> el.style.display = (k===tab ? '' : 'none'));
+  if(tab==='daily') renderDailyReport();
+  if(tab==='empwise') renderEmpWiseReport();
+});
+
+/* =========================================================
+   THEME TOGGLE
+========================================================= */
+const themeToggleBtn = document.getElementById('themeToggle');
+function applyTheme(theme){
+  document.body.setAttribute('data-theme', theme);
+  saveData(STORE_KEYS.theme, theme);
+  themeToggleBtn.innerHTML = (theme==='dark' ? '🌙 <span>Theme</span>' : '☀️ <span>Theme</span>');
+}
+applyTheme(loadData(STORE_KEYS.theme, 'dark'));
+themeToggleBtn.addEventListener('click', ()=>{
+  const cur = document.body.getAttribute('data-theme');
+  applyTheme(cur==='dark' ? 'light' : 'dark');
+});
+
+/* =========================================================
+   EMPLOYEES
+========================================================= */
+function renderEmployeeSelect(){
+  const sel = document.getElementById('entryEmployee');
+  const prev = sel.value;
+  sel.innerHTML = employees.length
+    ? employees.map(e=>`<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('')
+    : `<option value="">No employees / কর্মী নেই</option>`;
+  if(prev) sel.value = prev;
+}
+function renderEmployeeList(){
+  const body = document.getElementById('employeeListBody');
+  const emptyEl = document.getElementById('employeeEmpty');
+  if(employees.length===0){
+    body.innerHTML='';
+    emptyEl.style.display='block';
+    return;
+  }
+  emptyEl.style.display='none';
+  body.innerHTML = employees.map(emp=>{
+    const count = entries.filter(en=>en.employeeId===emp.id).length;
+    return `<tr>
+      <td data-label="Name">${escapeHtml(emp.name)}</td>
+      <td class="right num" data-label="Entries">${count}</td>
+      <td class="right cell-actions"><button class="btn btn-danger btn-sm" data-del-employee="${emp.id}">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+document.getElementById('addEmployeeBtn').addEventListener('click', ()=>{
+  const input = document.getElementById('newEmployeeName');
+  const name = input.value.trim();
+  if(!name){ showToast('Enter employee name / নাম লিখুন', true); return; }
+  employees.push({id:uid(), name});
+  saveData(STORE_KEYS.employees, employees);
+  input.value='';
+  renderEmployeeList();
+  renderEmployeeSelect();
+  showToast('Employee added / কর্মী যুক্ত হয়েছে');
+});
+document.getElementById('employeeListBody').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-del-employee]');
+  if(!btn) return;
+  const id = btn.dataset.delEmployee;
+  if(!confirm('Delete this employee? Their past entries will remain in reports.\nএই কর্মীকে মুছে ফেলবেন?')) return;
+  employees = employees.filter(e=>e.id!==id);
+  saveData(STORE_KEYS.employees, employees);
+  renderEmployeeList();
+  renderEmployeeSelect();
+  showToast('Employee deleted / মুছে ফেলা হয়েছে');
+});
+
+/* =========================================================
+   ITEMS
+========================================================= */
+function renderItemSelect(){
+  const sel = document.getElementById('entryItem');
+  const prev = sel.value;
+  sel.innerHTML = items.length
+    ? items.map(i=>`<option value="${i.id}">${escapeHtml(i.name)} — ${money(i.price)}</option>`).join('')
+    : `<option value="">No items / আইটেম নেই</option>`;
+  if(prev) sel.value = prev;
+  updateEntryPreview();
+}
+function renderItemList(){
+  const body = document.getElementById('itemListBody');
+  const emptyEl = document.getElementById('itemEmpty');
+  if(items.length===0){
+    body.innerHTML='';
+    emptyEl.style.display='block';
+    return;
+  }
+  emptyEl.style.display='none';
+  body.innerHTML = items.map(it=>`
+    <tr>
+      <td data-label="Item">${escapeHtml(it.name)}</td>
+      <td class="right num" data-label="Price">${money(it.price)}</td>
+      <td class="right cell-actions"><button class="btn btn-danger btn-sm" data-del-item="${it.id}">Delete</button></td>
+    </tr>`).join('');
+}
+document.getElementById('addItemBtn').addEventListener('click', ()=>{
+  const nameInput = document.getElementById('newItemName');
+  const priceInput = document.getElementById('newItemPrice');
+  const name = nameInput.value.trim();
+  const price = parseFloat(priceInput.value);
+  if(!name){ showToast('Enter item name / আইটেমের নাম লিখুন', true); return; }
+  if(isNaN(price) || price < 0){ showToast('Enter valid price / সঠিক দাম লিখুন', true); return; }
+  items.push({id:uid(), name, price});
+  saveData(STORE_KEYS.items, items);
+  nameInput.value=''; priceInput.value='';
+  renderItemList();
+  renderItemSelect();
+  showToast('Item added / আইটেম যুক্ত হয়েছে');
+});
+document.getElementById('itemListBody').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-del-item]');
+  if(!btn) return;
+  const id = btn.dataset.delItem;
+  if(!confirm('Delete this item?\nএই আইটেম মুছে ফেলবেন?')) return;
+  items = items.filter(i=>i.id!==id);
+  saveData(STORE_KEYS.items, items);
+  renderItemList();
+  renderItemSelect();
+  showToast('Item deleted / মুছে ফেলা হয়েছে');
+});
+
+/* =========================================================
+   ENTRY FORM
+========================================================= */
+function updateEntryPreview(){
+  const itemId = document.getElementById('entryItem').value;
+  const qty = parseFloat(document.getElementById('entryQty').value) || 0;
+  const item = getItem(itemId);
+  const price = item ? item.price : 0;
+  document.getElementById('entryTotalPreview').textContent = money(price*qty);
+  document.getElementById('entryUnitPrice').textContent = item ? `unit price: ${money(item.price)}` : 'unit price: —';
+}
+document.getElementById('entryItem').addEventListener('change', updateEntryPreview);
+document.getElementById('entryQty').addEventListener('input', updateEntryPreview);
+
+document.getElementById('saveEntryBtn').addEventListener('click', ()=>{
+  const employeeId = document.getElementById('entryEmployee').value;
+  const itemId = document.getElementById('entryItem').value;
+  const qty = parseFloat(document.getElementById('entryQty').value);
+
+  if(employees.length===0){ showToast('Add an employee first / প্রথমে কর্মী যুক্ত করুন', true); return; }
+  if(items.length===0){ showToast('Add an item first / প্রথমে আইটেম যুক্ত করুন', true); return; }
+  if(!employeeId || !itemId){ showToast('Select employee & item / কর্মী এবং আইটেম নির্বাচন করুন', true); return; }
+  if(isNaN(qty) || qty<=0){ showToast('Enter valid quantity / সঠিক পরিমাণ লিখুন', true); return; }
+
+  const item = getItem(itemId);
+  const now = new Date();
+  const {date, time} = fmtDateTime(now);
+  const entry = {
+    id: uid(),
+    invoiceNo: nextInvoiceNumber(),
+    employeeId, itemId,
+    qty,
+    price: item.price,
+    total: item.price*qty,
+    dateISO: date,
+    timeStr: time
+  };
+  entries.push(entry);
+  saveData(STORE_KEYS.entries, entries);
+
+  document.getElementById('entryQty').value = 1;
+  updateEntryPreview();
+  renderTodayEntries();
+  renderEmployeeList(); // updates entry counts
+
+  openReceiptForEntries([entry], getEmployee(employeeId));
+  showToast('Entry saved / এন্ট্রি সংরক্ষিত হয়েছে');
+});
+
+function renderTodayEntries(){
+  const tISO = todayISO();
+  const todays = entries.filter(e=>e.dateISO===tISO).sort((a,b)=> (a.timeStr<b.timeStr?1:-1));
+  const body = document.getElementById('todayEntriesBody');
+  const emptyEl = document.getElementById('todayEmpty');
+
+  document.getElementById('todayCount').textContent = todays.length;
+  document.getElementById('todayTotal').textContent = money(todays.reduce((s,e)=>s+e.total,0));
+
+  if(todays.length===0){
+    body.innerHTML='';
+    emptyEl.style.display='block';
+    return;
+  }
+  emptyEl.style.display='none';
+  body.innerHTML = todays.map(en=>{
+    const emp = getEmployee(en.employeeId);
+    const item = getItem(en.itemId);
+    return `<tr>
+      <td data-label="Employee">${escapeHtml(emp ? emp.name : '—')}</td>
+      <td data-label="Item">${escapeHtml(item ? item.name : '—')}</td>
+      <td class="right num" data-label="Qty">${en.qty}</td>
+      <td class="right num" data-label="Total">${money(en.total)}</td>
+      <td class="right cell-actions">
+        <button class="btn btn-outline btn-sm" data-reprint="${en.id}">🖨️</button>
+        <button class="btn btn-danger btn-sm" data-del-entry="${en.id}">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+document.getElementById('todayEntriesBody').addEventListener('click', (e)=>{
+  const delBtn = e.target.closest('[data-del-entry]');
+  const printBtn = e.target.closest('[data-reprint]');
+  if(delBtn){
+    const id = delBtn.dataset.delEntry;
+    if(!confirm('Delete this entry?\nএই এন্ট্রি মুছে ফেলবেন?')) return;
+    entries = entries.filter(en=>en.id!==id);
+    saveData(STORE_KEYS.entries, entries);
+    renderTodayEntries();
+    renderEmployeeList();
+    showToast('Entry deleted / মুছে ফেলা হয়েছে');
+  } else if(printBtn){
+    const id = printBtn.dataset.reprint;
+    const entry = entries.find(en=>en.id===id);
+    if(entry){
+      openReceiptForEntries([entry], getEmployee(entry.employeeId));
+    }
+  }
+});
+
+/* =========================================================
+   DAILY REPORT
+========================================================= */
+function renderDailyReport(){
+  const dateInput = document.getElementById('reportDate');
+  if(!dateInput.value) dateInput.value = todayISO();
+  const sel = dateInput.value;
+  const list = entries.filter(e=>e.dateISO===sel).sort((a,b)=> (a.timeStr<b.timeStr?1:-1));
+  const body = document.getElementById('dailyReportBody');
+  const emptyEl = document.getElementById('dailyEmpty');
+
+  if(list.length===0){
+    body.innerHTML='';
+    emptyEl.style.display='block';
+  } else {
+    emptyEl.style.display='none';
+    body.innerHTML = list.map(en=>{
+      const emp = getEmployee(en.employeeId);
+      const item = getItem(en.itemId);
+      return `<tr>
+        <td class="num" data-label="Time">${en.timeStr}</td>
+        <td data-label="Employee">${escapeHtml(emp ? emp.name : '—')}</td>
+        <td data-label="Item">${escapeHtml(item ? item.name : '—')}</td>
+        <td class="right num" data-label="Qty">${en.qty}</td>
+        <td class="right num" data-label="Price">${money(en.price)}</td>
+        <td class="right num" data-label="Total">${money(en.total)}</td>
+        <td class="right cell-actions"><button class="btn btn-outline btn-sm" data-daily-reprint="${en.id}">🖨️</button></td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('dailyGrandTotal').textContent = money(list.reduce((s,e)=>s+e.total,0));
+}
+document.getElementById('reportDate').addEventListener('change', renderDailyReport);
+document.getElementById('todayBtn').addEventListener('click', ()=>{
+  document.getElementById('reportDate').value = todayISO();
+  renderDailyReport();
+});
+document.getElementById('dailyReportBody').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-daily-reprint]');
+  if(!btn) return;
+  const entry = entries.find(en=>en.id===btn.dataset.dailyReprint);
+  if(entry) openReceiptForEntries([entry], getEmployee(entry.employeeId));
+});
+
+/* =========================================================
+   EMPLOYEE-WISE REPORT
+========================================================= */
+function renderEmpWiseReport(){
+  const fromEl = document.getElementById('empFromDate');
+  const toEl = document.getElementById('empToDate');
+  let list = entries.slice();
+  if(fromEl.value) list = list.filter(e=> e.dateISO >= fromEl.value);
+  if(toEl.value) list = list.filter(e=> e.dateISO <= toEl.value);
+
+  const groups = {};
+  list.forEach(en=>{
+    const key = en.employeeId;
+    if(!groups[key]) groups[key]={employeeId:key, count:0, qty:0, total:0};
+    groups[key].count++;
+    groups[key].qty+=en.qty;
+    groups[key].total+=en.total;
+  });
+  const rows = Object.values(groups).sort((a,b)=>b.total-a.total);
+
+  const body = document.getElementById('empWiseBody');
+  const emptyEl = document.getElementById('empWiseEmpty');
+  if(rows.length===0){
+    body.innerHTML='';
+    emptyEl.style.display='block';
+  } else {
+    emptyEl.style.display='none';
+    body.innerHTML = rows.map(r=>{
+      const emp = getEmployee(r.employeeId);
+      return `<tr>
+        <td data-label="Employee">${escapeHtml(emp ? emp.name : 'Deleted employee')}</td>
+        <td class="right num" data-label="Entries">${r.count}</td>
+        <td class="right num" data-label="Total Qty">${r.qty}</td>
+        <td class="right num" data-label="Total Amount">${money(r.total)}</td>
+        <td class="right cell-actions"><button class="btn btn-outline btn-sm" data-emp-receipt="${r.employeeId}">🖨️ Summary</button></td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('empWiseGrandTotal').textContent = money(rows.reduce((s,r)=>s+r.total,0));
+
+  // stash current filtered list + range for receipt summary use
+  renderEmpWiseReport._current = {list, fromEl:fromEl.value, toEl:toEl.value};
+}
+document.getElementById('empFromDate').addEventListener('change', renderEmpWiseReport);
+document.getElementById('empToDate').addEventListener('change', renderEmpWiseReport);
+document.getElementById('allTimeBtn').addEventListener('click', ()=>{
+  document.getElementById('empFromDate').value='';
+  document.getElementById('empToDate').value='';
+  renderEmpWiseReport();
+});
+document.getElementById('empWiseBody').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-emp-receipt]');
+  if(!btn) return;
+  const employeeId = btn.dataset.empReceipt;
+  const cur = renderEmpWiseReport._current || {list:entries};
+  const empEntries = cur.list.filter(en=>en.employeeId===employeeId);
+  openReceiptForEntries(empEntries, getEmployee(employeeId), true);
+});
+
+/* =========================================================
+   RECEIPT RENDERING + PRINT
+========================================================= */
+let currentReceiptSize = '58';
+let currentReceiptData = null; // {entriesForReceipt, employee, isSummary}
+
+function buildReceiptHTML(entriesForReceipt, employee, isSummary){
+  const now = new Date();
+  const {date, time} = fmtDateTime(now);
+  const invoiceNo = entriesForReceipt.length===1 ? entriesForReceipt[0].invoiceNo : ('SUMMARY-' + uid().slice(0,5).toUpperCase());
+
+  let itemRows = '';
+  let grandTotal = 0;
+
+  if(!isSummary){
+    entriesForReceipt.forEach(en=>{
+      const item = getItem(en.itemId);
+      const name = item ? item.name : '—';
+      grandTotal += en.total;
+      itemRows += `
+        <tr>
+          <td colspan="3" style="padding-top:6px;font-weight:700;">${escapeHtml(name)}</td>
+        </tr>
+        <tr>
+          <td>Qty: ${en.qty}</td>
+          <td>@ ${money(en.price)}</td>
+          <td class="r">${money(en.total)}</td>
+        </tr>`;
+    });
+  } else {
+    // group by item for summary
+    const byItem = {};
+    entriesForReceipt.forEach(en=>{
+      const item = getItem(en.itemId);
+      const key = item ? item.id : 'unknown';
+      if(!byItem[key]) byItem[key]={name:item?item.name:'—', qty:0, total:0, price:en.price};
+      byItem[key].qty += en.qty;
+      byItem[key].total += en.total;
+      grandTotal += en.total;
+    });
+    Object.values(byItem).forEach(r=>{
+      itemRows += `
+        <tr><td colspan="3" style="padding-top:6px;font-weight:700;">${escapeHtml(r.name)}</td></tr>
+        <tr>
+          <td>Qty: ${r.qty}</td><td>@ ${money(r.price)}</td><td class="r">${money(r.total)}</td>
+        </tr>`;
+    });
+  }
+
+  return `
+    <div class="center title">OFFICE SNACK POS</div>
+    <div class="center sub">অফিস নাস্তা সিস্টেম</div>
+    <hr>
+    <div class="row"><span>Invoice / চালান</span><span>${invoiceNo}</span></div>
+    <div class="row"><span>Date / তারিখ</span><span>${date}</span></div>
+    <div class="row"><span>Time / সময়</span><span>${time}</span></div>
+    <hr>
+    <div class="row"><span>Employee / কর্মী</span><span>${escapeHtml(employee ? employee.name : '—')}</span></div>
+    ${isSummary ? `<div class="row"><span>Type</span><span>Summary / সামারি</span></div>` : ''}
+    <hr>
+    <table>
+      <thead>
+        <tr><th>Item / আইটেম</th><th>Qty/দাম</th><th class="r">Total</th></tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
+    <hr>
+    <div class="row grand"><span>GRAND TOTAL</span><span>${money(grandTotal)}</span></div>
+    <div class="row" style="font-size:10px;"><span>মোট</span><span></span></div>
+    <hr>
+    <div class="center footer">
+      Thank you! / ধন্যবাদ!<br>
+      Office Snack Management System
+    </div>
+  `;
+}
+
+function openReceiptForEntries(entriesForReceipt, employee, isSummary){
+  currentReceiptData = {entriesForReceipt, employee, isSummary: !!isSummary};
+  renderReceiptPreview();
+  document.getElementById('receiptModal').style.display = 'flex';
+}
+function renderReceiptPreview(){
+  if(!currentReceiptData) return;
+  const html = buildReceiptHTML(currentReceiptData.entriesForReceipt, currentReceiptData.employee, currentReceiptData.isSummary);
+  const wrap = document.getElementById('printArea');
+  wrap.innerHTML = `<div class="receipt w${currentReceiptSize}">${html}</div>`;
+}
+document.getElementById('seg58').addEventListener('click', ()=>setReceiptSize('58'));
+document.getElementById('seg80').addEventListener('click', ()=>setReceiptSize('80'));
+function setReceiptSize(size){
+  currentReceiptSize = size;
+  document.getElementById('seg58').classList.toggle('active', size==='58');
+  document.getElementById('seg80').classList.toggle('active', size==='80');
+  renderReceiptPreview();
+}
+document.getElementById('closeReceiptBtn').addEventListener('click', ()=>{
+  document.getElementById('receiptModal').style.display='none';
+});
+document.getElementById('printReceiptBtn').addEventListener('click', ()=>{
+  setTimeout(()=>{ window.print(); }, 80);
+});
+
+/* =========================================================
+   BACKUP / RESTORE
+========================================================= */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    employees, items, entries,
+    invoiceSeq: loadData(STORE_KEYS.invoiceSeq, 0)
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `snack-pos-backup-${todayISO()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded / ব্যাকআপ ডাউনলোড হয়েছে');
+});
+document.getElementById('importBtnLabel').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!confirm('This will REPLACE all current data with the backup file. Continue?\nএই ব্যাকআপ দিয়ে বর্তমান সব ডেটা প্রতিস্থাপিত হবে। চালিয়ে যাবেন?')) return;
+      employees = Array.isArray(data.employees) ? data.employees : [];
+      items = Array.isArray(data.items) ? data.items : [];
+      entries = Array.isArray(data.entries) ? data.entries : [];
+      saveData(STORE_KEYS.employees, employees);
+      saveData(STORE_KEYS.items, items);
+      saveData(STORE_KEYS.entries, entries);
+      if(typeof data.invoiceSeq === 'number') saveData(STORE_KEYS.invoiceSeq, data.invoiceSeq);
+      renderAll();
+      showToast('Restore successful / পুনরুদ্ধার সম্পন্ন হয়েছে');
+    }catch(err){
+      showToast('Invalid backup file / ভুল ব্যাকআপ ফাইল', true);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+/* =========================================================
+   HELPERS
+========================================================= */
+function escapeHtml(str){
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+function renderAll(){
+  renderEmployeeSelect();
+  renderItemSelect();
+  renderEmployeeList();
+  renderItemList();
+  renderTodayEntries();
+  renderDailyReport();
+  renderEmpWiseReport();
+}
+renderAll();
+</script>
+</body>
+</html>
